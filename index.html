@@ -1,0 +1,456 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Dossier Médicaux</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+body{
+  font-family:'Roboto',sans-serif;
+  background: linear-gradient(135deg,#e0eafc,#f7f9fc);
+  margin:0;
+  padding:0;
+  color:#333;
+  display:flex;
+  justify-content:center;
+}
+.container{
+  max-width:900px;
+  width:100%;
+  padding:20px;
+  box-sizing:border-box;
+}
+header{
+  background: linear-gradient(90deg,#007acc,#005fa3);
+  color:white;
+  padding:20px;
+  text-align:center;
+  font-size:28px;
+  font-weight:700;
+  border-radius:10px 10px 0 0;
+  box-shadow:0 4px 12px rgba(0,0,0,0.2);
+  margin-bottom:20px;
+}
+#login,#dashboard,#details,#registerForm,#editPatientForm{
+  display:none;
+  background:white;
+  padding:25px;
+  border-radius:10px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.15);
+  transition:all 0.3s;
+}
+input,select,textarea{
+  width:100%;
+  padding:10px;
+  margin:5px 0 15px 0;
+  border-radius:6px;
+  border:1px solid #ccc;
+  box-sizing:border-box;
+}
+button{
+  cursor:pointer;
+  border:none;
+  border-radius:6px;
+  padding:10px 18px;
+  font-weight:500;
+  transition:all 0.2s;
+}
+button:hover{opacity:0.9;}
+#login button,#registerForm button,#editPatientForm button{background:#007acc;color:white;width:100%;}
+#createForm, #editForm{
+  background:#f9fafe;
+  padding:20px;
+  margin:15px 0;
+  border-radius:10px;
+  box-shadow:0 3px 10px rgba(0,0,0,0.1);
+}
+.patient-section{margin-top:20px;}
+.letter-header{
+  font-size:20px;
+  font-weight:700;
+  margin:10px 0;
+  color:#007acc;
+  border-bottom:2px solid #007acc;
+  padding-bottom:3px;
+}
+.patient-card{
+  background:white;
+  padding:12px;
+  margin:5px 0;
+  border-radius:10px;
+  cursor:pointer;
+  box-shadow:0 2px 5px rgba(0,0,0,0.1);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  transition:transform 0.2s,box-shadow 0.2s;
+}
+.patient-card:hover{
+  transform:translateY(-2px);
+  box-shadow:0 4px 12px rgba(0,0,0,0.18);
+}
+.patient-card img{
+  width:50px;
+  height:50px;
+  border-radius:50%;
+  margin-right:12px;
+  object-fit:cover;
+  border:2px solid #007acc;
+}
+.card-buttons button{
+  margin-left:5px;
+  padding:5px 8px;
+  font-size:12px;
+}
+.intervention{
+  background:white;
+  border-radius:10px;
+  margin:10px 0;
+  box-shadow:0 2px 5px rgba(0,0,0,0.1);
+  overflow:hidden;
+  transition:all 0.3s;
+}
+.intervention-header{
+  padding:12px;
+  background:#e9f0fb;
+  cursor:pointer;
+  font-weight:600;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  transition:background 0.3s;
+}
+.intervention-header:hover{background:#d2e0fb;}
+.intervention-header span{font-size:14px;color:#555;}
+.intervention-content{
+  display:none;
+  padding:12px;
+  border-top:1px solid #ddd;
+  white-space:pre-line;
+}
+.intervention.expanded .intervention-content{display:block;}
+.buttons{margin-top:10px;text-align:right;}
+.btn{padding:5px 10px;margin-left:5px;border-radius:5px;}
+.btn-edit{background:#ffcc00;}
+.btn-save{background:#00cc66;color:white;}
+.btn-delete{background:#ff4444;color:white;}
+.btn-cancel{background:#999;color:white;}
+textarea{width:100%;border:1px solid #ccc;border-radius:5px;padding:8px;}
+#patientInfo{
+  background:#eef5fc;
+  padding:15px;
+  border-radius:10px;
+  margin-bottom:15px;
+}
+#searchPatient{
+  padding:10px;
+  margin-bottom:15px;
+  border-radius:6px;
+  border:1px solid #ccc;
+}
+/* Modal pour zoom photo */
+#photoModal{
+  display:none;
+  position:fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  background:rgba(0,0,0,0.8);
+  justify-content:center;
+  align-items:center;
+  z-index:1000;
+}
+#photoModal img{
+  max-width:90%;
+  max-height:90%;
+  border-radius:10px;
+  box-shadow:0 0 15px #fff;
+  cursor:pointer;
+}
+</style>
+</head>
+<body>
+<div class="container">
+<header>Dossier Médicaux</header>
+
+<!-- Connexion -->
+<div id="login">
+<h2>Connexion</h2>
+<input id="username" placeholder="Utilisateur"><br>
+<input id="password" type="password" placeholder="Mot de passe"><br>
+<button onclick="login()">Se connecter</button>
+<p>Pas de compte ? <a href="#" onclick="toggleRegisterForm()">Créer un compte</a></p>
+</div>
+
+<!-- Inscription -->
+<div id="registerForm">
+<h2>Créer un compte</h2>
+<input id="newUsername" placeholder="Utilisateur"><br>
+<input id="newPassword" type="password" placeholder="Mot de passe"><br>
+<input id="confirmPassword" type="password" placeholder="Confirmer mot de passe"><br>
+<button onclick="registerUser()">Créer un compte</button>
+<p><a href="#" onclick="toggleRegisterForm()">Retour à la connexion</a></p>
+</div>
+
+<!-- Tableau de bord -->
+<div id="dashboard">
+<h2>Tableau de bord</h2>
+<input type="text" id="searchPatient" placeholder="Rechercher..." onkeyup="filterPatients()"><br>
+<button onclick="toggleCreateForm()">Nouveau dossier</button>
+
+<div id="createForm" style="display:none;">
+<h3>Créer un dossier patient</h3>
+<label>Nom Prénom</label>
+<input type="text" id="patientNameInput">
+<label>Date de naissance</label>
+<input type="date" id="patientDOBInput">
+<label>Sexe</label>
+<select id="patientSexInput">
+<option value="H">H</option>
+<option value="F">F</option>
+<option value="Autre">Autre</option>
+</select>
+<label>Groupe sanguin</label>
+<select id="patientBloodInput">
+<option value="">Indéfini</option>
+<option value="A+">A+</option>
+<option value="A-">A-</option>
+<option value="B+">B+</option>
+<option value="B-">B-</option>
+<option value="AB+">AB+</option>
+<option value="AB-">AB-</option>
+<option value="O+">O+</option>
+<option value="O-">O-</option>
+</select>
+<label>Photo</label>
+<input type="file" id="patientPhotoInput" accept="image/*"><br>
+<button onclick="createPatient()">Créer</button>
+<button onclick="toggleCreateForm()">Annuler</button>
+</div>
+
+<div id="patientList"></div>
+</div>
+
+<!-- Détails patient -->
+<div id="details">
+<button onclick="backToDashboard()">⬅ Retour</button>
+<h2 id="patientName"></h2>
+<button id="editPatientBtn" onclick="showEditPatientForm(currentPatientIndex)">Modifier le dossier</button>
+<div id="patientInfo"></div>
+<img id="patientPhoto" style="max-width:200px;border-radius:10px;margin-bottom:15px;"><br>
+
+<h3>Ajouter une intervention</h3>
+<textarea id="newIntervention" rows="5" placeholder="Détails de l’intervention..."></textarea><br>
+<button onclick="addIntervention()">Ajouter</button>
+
+<h3>Historique des interventions</h3>
+<div id="interventionList"></div>
+</div>
+
+<!-- Formulaire modification patient -->
+<div id="editPatientForm">
+<h3>Modifier le dossier</h3>
+<label>Nom Prénom</label>
+<input id="editPatientName">
+<label>Date de naissance</label>
+<input type="date" id="editPatientDOB">
+<label>Sexe</label>
+<select id="editPatientSex">
+<option value="H">H</option>
+<option value="F">F</option>
+<option value="Autre">Autre</option>
+</select>
+<label>Groupe sanguin</label>
+<select id="editPatientBlood">
+<option value="">Indéfini</option>
+<option value="A+">A+</option>
+<option value="A-">A-</option>
+<option value="B+">B+</option>
+<option value="B-">B-</option>
+<option value="AB+">AB+</option>
+<option value="AB-">AB-</option>
+<option value="O+">O+</option>
+<option value="O-">O-</option>
+</select>
+<label>Photo</label>
+<input type="file" id="editPatientPhoto" accept="image/*"><br>
+<button onclick="savePatientDetails()">Enregistrer</button>
+<button onclick="toggleEditPatientForm()">Annuler</button>
+</div>
+
+<!-- Modal photo -->
+<div id="photoModal" onclick="this.style.display='none'">
+  <img id="modalImg">
+</div>
+
+<script>
+// Utilisateurs
+let users = JSON.parse(localStorage.getItem('users')) || [];
+if(users.length===0){users.push({username:"ems",password:"1234"});localStorage.setItem('users',JSON.stringify(users));}
+
+// Connexion
+function login(){
+  let u = document.getElementById("username").value.trim();
+  let p = document.getElementById("password").value;
+  let user = users.find(x=>x.username===u && x.password===p);
+  if(user){document.getElementById("login").style.display="none"; document.getElementById("dashboard").style.display="block"; renderPatients();}
+  else alert("Identifiants invalides !");
+}
+
+// Inscription
+function toggleRegisterForm(){
+  let f = document.getElementById("registerForm");
+  f.style.display = (f.style.display==="none"?"block":"none");
+  document.getElementById("login").style.display = (f.style.display==="block"?"none":"block");
+}
+function registerUser(){
+  let u = document.getElementById('newUsername').value.trim();
+  let p = document.getElementById('newPassword').value;
+  let c = document.getElementById('confirmPassword').value;
+  if(!u || !p || !c){alert("Tous les champs sont requis"); return;}
+  if(p!==c){alert("Les mots de passe ne correspondent pas"); return;}
+  if(users.find(x=>x.username===u)){alert("Utilisateur existant"); return;}
+  users.push({username:u,password:p});
+  localStorage.setItem('users',JSON.stringify(users));
+  alert("Compte créé !"); 
+  document.getElementById('newUsername').value='';
+  document.getElementById('newPassword').value='';
+  document.getElementById('confirmPassword').value='';
+  toggleRegisterForm();
+}
+
+// Patients
+let patients = JSON.parse(localStorage.getItem('patients')) || [];
+let currentPatientIndex = null;
+let dossierCounter = JSON.parse(localStorage.getItem('dossierCounter')) || 1;
+function savePatients(){localStorage.setItem('patients',JSON.stringify(patients)); localStorage.setItem('dossierCounter',JSON.stringify(dossierCounter));}
+function sortPatients(){patients.sort((a,b)=>a.name.localeCompare(b.name,'fr',{sensitivity:'base'}));}
+
+// Formulaire création
+function toggleCreateForm(){let f=document.getElementById("createForm"); f.style.display=(f.style.display==="none"?"block":"none");}
+function clearCreateForm(){document.getElementById("patientNameInput").value="";document.getElementById("patientDOBInput").value="";document.getElementById("patientSexInput").value="H";document.getElementById("patientBloodInput").value="";document.getElementById("patientPhotoInput").value="";}
+
+// Création patient
+function createPatient(){
+  let name=document.getElementById("patientNameInput").value.trim();
+  let dob=document.getElementById("patientDOBInput").value;
+  let sex=document.getElementById("patientSexInput").value;
+  let blood=document.getElementById("patientBloodInput").value;
+  let file=document.getElementById("patientPhotoInput").files[0];
+  if(!name || !dob || !sex){alert("Nom, date de naissance et sexe obligatoires."); return;}
+  let reader=new FileReader();
+  reader.onload=()=>{
+    patients.push({id:dossierCounter++,name,DOB:dob,sex,blood,photo:reader.result,history:[]});
+    sortPatients(); renderPatients(); toggleCreateForm(); clearCreateForm(); savePatients();
+  };
+  if(file){reader.readAsDataURL(file);} else {patients.push({id:dossierCounter++,name,DOB:dob,sex,blood,photo:null,history:[]}); sortPatients(); renderPatients(); toggleCreateForm(); clearCreateForm(); savePatients();}
+}
+
+// Liste patients
+function renderPatients(list=patients){
+  let container=document.getElementById("patientList");container.innerHTML="";
+  sortPatients(); if(list.length===0){container.innerText="Aucun patient."; return;}
+  let currentLetter="";
+  list.forEach(p=>{
+    let firstLetter=p.name.charAt(0).toUpperCase();
+    if(firstLetter!==currentLetter){
+      currentLetter=firstLetter;
+      let section=document.createElement("div"); section.className="patient-section";
+      section.innerHTML=`<div class="letter-header">${currentLetter}</div>`;
+      container.appendChild(section);
+    }
+    let card=document.createElement("div"); card.className="patient-card";
+    let leftDiv=document.createElement("div");
+    if(p.photo){leftDiv.innerHTML=`<img src="${p.photo}"> ${p.name}`;} else {leftDiv.innerHTML=`${p.name}`;}
+    card.appendChild(leftDiv);
+    let btnDiv=document.createElement("div");btnDiv.className="card-buttons";
+    let editBtn=document.createElement("button");editBtn.innerText="Modifier";editBtn.onclick=(e)=>{e.stopPropagation();showEditPatientForm(patients.indexOf(p));};
+    let delBtn=document.createElement("button");delBtn.innerText="Supprimer";delBtn.onclick=(e)=>{e.stopPropagation();deletePatient(p.id);};
+    btnDiv.appendChild(editBtn); btnDiv.appendChild(delBtn); card.appendChild(btnDiv);
+    card.onclick=()=>showDetails(patients.indexOf(p));
+    container.lastChild.appendChild(card);
+  });
+}
+
+// Recherche
+function filterPatients(){
+  let q=document.getElementById("searchPatient").value.toLowerCase();
+  let f=patients.filter(p=>p.name.toLowerCase().includes(q));
+  renderPatients(f);
+}
+
+// Détails patient
+function showDetails(i){
+  currentPatientIndex=i;
+  let p=patients[i];
+  document.getElementById("dashboard").style.display="none";
+  document.getElementById("details").style.display="block";
+  document.getElementById("patientName").innerText=p.name;
+  document.getElementById("patientPhoto").src=p.photo||"";
+  document.getElementById("patientPhoto").onclick=()=>{document.getElementById('photoModal').style.display='flex';document.getElementById('modalImg').src=p.photo;}
+  document.getElementById("patientInfo").innerHTML=
+     `<strong>Date de naissance:</strong> ${p.DOB}<br>
+      <strong>Sexe:</strong> ${p.sex}<br>
+      <strong>Groupe sanguin:</strong> ${p.blood||'Indéfini'}<br>
+      <strong>Nombre d'interventions:</strong> ${p.history.length}`;
+  renderInterventions();
+}
+function backToDashboard(){document.getElementById("details").style.display="none";document.getElementById("dashboard").style.display="block";}
+
+// Modifier patient
+function showEditPatientForm(index){
+  currentPatientIndex=index;
+  let p = patients[index];
+  document.getElementById('editPatientForm').style.display='block';
+  document.getElementById('editPatientName').value=p.name;
+  document.getElementById('editPatientDOB').value=p.DOB;
+  document.getElementById('editPatientSex').value=p.sex;
+  document.getElementById('editPatientBlood').value=p.blood;
+}
+function toggleEditPatientForm(){document.getElementById('editPatientForm').style.display='none';}
+function savePatientDetails(){
+  let p=patients[currentPatientIndex];
+  p.name=document.getElementById('editPatientName').value.trim();
+  p.DOB=document.getElementById('editPatientDOB').value;
+  p.sex=document.getElementById('editPatientSex').value;
+  p.blood=document.getElementById('editPatientBlood').value;
+  let file=document.getElementById("editPatientPhoto").files[0];
+  if(file){let reader=new FileReader();reader.onload=()=>{p.photo=reader.result;sortPatients();renderPatients();savePatients();toggleEditPatientForm();showDetails(currentPatientIndex);}; reader.readAsDataURL(file);} 
+  else{sortPatients();renderPatients();savePatients();toggleEditPatientForm();showDetails(currentPatientIndex);}
+}
+
+// Supprimer patient
+function deletePatient(id){if(confirm("Supprimer définitivement ce dossier ?")){patients=patients.filter(p=>p.id!==id);renderPatients();savePatients();}}
+
+// Interventions
+function addIntervention(){
+  let txt=document.getElementById("newIntervention").value.trim();
+  if(!txt)return alert("Champ vide !");
+  patients[currentPatientIndex].history.push(txt);
+  document.getElementById("newIntervention").value="";
+  savePatients(); renderInterventions();
+}
+function renderInterventions(){
+  let list=document.getElementById("interventionList");
+  let patient=patients[currentPatientIndex];
+  list.innerHTML="";
+  if(patient.history.length===0){list.innerText="Aucune intervention."; return;}
+  patient.history.forEach((interv,i)=>{
+    let div=document.createElement("div");div.className="intervention";
+    let header=document.createElement("div");header.className="intervention-header";header.innerHTML="🩺 Intervention "+(i+1)+" <span>(cliquer pour voir)</span>";
+    let content=document.createElement("div");content.className="intervention-content";content.innerText=interv;
+    div.appendChild(header); div.appendChild(content);
+    header.onclick=()=>div.classList.toggle("expanded");
+    list.appendChild(div);
+  });
+}
+
+// Age
+function getAge(dob){let diff=new Date()-new Date(dob);return Math.floor(diff/31557600000);}
+
+// Onload
+window.onload=()=>{document.getElementById("login").style.display="block";}
+</script>
+</div>
+</body>
+</html>
